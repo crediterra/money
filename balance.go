@@ -5,9 +5,8 @@ import (
 	"sort"
 	"time"
 
-	"github.com/pkg/errors"
+	"errors"
 	"github.com/pquerna/ffjson/ffjson"
-	"github.com/strongo/app"
 	"github.com/strongo/decimal"
 )
 
@@ -72,7 +71,7 @@ func (b Balance) OnlyNegative() Balance {
 	return result
 }
 
-func (b Balance) CommaSeparatedUnsignedWithSymbols(translator strongo.SingleLocaleTranslator) string {
+func (b Balance) CommaSeparatedUnsignedWithSymbols(translator interface{ Translate(s string) string }) string {
 	lastIndex := len(b) - 1
 	if lastIndex == 0 {
 		for currency, value := range b {
@@ -128,34 +127,34 @@ type Balanced struct {
 	BalanceCount     int       `datastore:",noindex,omitempty" json:"-"`
 }
 
-func (b *Balanced) Balance() (balance Balance) {
-	if b.BalanceJson == "" || b.BalanceJson == "null" || b.BalanceJson == "nil" || b.BalanceJson == "{}" {
+func (balanced *Balanced) Balance() (balance Balance) {
+	if balanced.BalanceJson == "" || balanced.BalanceJson == "null" || balanced.BalanceJson == "nil" || balanced.BalanceJson == "{}" {
 		balance = make(Balance, 1)
 		return
 	}
-	balance = make(Balance, b.BalanceCount)
-	if err := ffjson.Unmarshal([]byte(b.BalanceJson), &balance); err != nil {
+	balance = make(Balance, balanced.BalanceCount)
+	if err := ffjson.Unmarshal([]byte(balanced.BalanceJson), &balance); err != nil {
 		panic(err)
 	}
 	return
 }
 
-func (b *Balanced) SetBalance(balance Balance) error {
+func (balanced *Balanced) SetBalance(balance Balance) error {
 	if balance == nil || len(balance) == 0 {
-		b.BalanceJson = ""
-		b.BalanceCount = 0
+		balanced.BalanceJson = ""
+		balanced.BalanceCount = 0
 		return nil
 	}
 	for currency, val := range balance {
 		if val == 0 {
-			return errors.WithStack(errors.New("balance currency has 0 value: " + string(currency)))
+			return errors.New("balance currency has 0 value: " + string(currency))
 		}
 	}
 	if v, err := ffjson.Marshal(balance); err != nil {
 		return err
 	} else {
-		b.BalanceJson = string(v)
-		b.BalanceCount = len(balance)
+		balanced.BalanceJson = string(v)
+		balanced.BalanceCount = len(balance)
 	}
 	return nil
 }
