@@ -140,7 +140,7 @@ func (balanced *Balanced) Balance() (balance Balance) {
 }
 
 func (balanced *Balanced) SetBalance(balance Balance) error {
-	if balance == nil || len(balance) == 0 {
+	if len(balance) == 0 {
 		balanced.BalanceJson = ""
 		balanced.BalanceCount = 0
 		return nil
