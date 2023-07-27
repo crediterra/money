@@ -8,14 +8,14 @@ import (
 
 // Amount holds amount of money with currency
 type Amount struct {
-	Currency Currency
+	Currency CurrencyCode
 	Value    decimal.Decimal64p2
 }
 
 // NewAmount creates new amount
-func NewAmount(currency Currency, value decimal.Decimal64p2) Amount {
+func NewAmount(currency CurrencyCode, value decimal.Decimal64p2) Amount {
 	if currency == "" {
-		panic("Currency not provided")
+		panic("CurrencyCode not provided")
 	}
 	return Amount{
 		Currency: currency,
@@ -24,21 +24,24 @@ func NewAmount(currency Currency, value decimal.Decimal64p2) Amount {
 }
 
 // Validate returns error if amount is invalid
-func (a *Amount) Validate() error {
-	if IsKnownCurrency(a.Currency) == false {
+func (a Amount) Validate() error {
+	if a.Currency == "" {
+		return fmt.Errorf("currency not provided")
+	}
+	if !IsKnownCurrency(a.Currency) {
 		return fmt.Errorf("unknown currency: %v", a.Currency)
 	}
 	return nil
 }
 
 // IsZero returns true if amount is zero
-func (a *Amount) IsZero() bool {
+func (a Amount) IsZero() bool {
 	return a.Value == 0 && a.Currency == ""
 }
 
 // String returns string representation of amount
-func (a *Amount) String() string {
-	//if currencySign, ok := currencySigns[v.Currency]; ok {
+func (a Amount) String() string {
+	//if currencySign, ok := currencySigns[v.CurrencyCode]; ok {
 	//	return fmt.Sprintf("%v%v", currencySign, v.Value)
 	//}
 	return fmt.Sprintf("%v %v", a.Value, a.Currency)

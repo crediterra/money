@@ -15,7 +15,7 @@ type TestStruct struct {
 	Name string
 }
 
-type Balance map[Currency]decimal.Decimal64p2
+type Balance map[CurrencyCode]decimal.Decimal64p2
 
 func (b Balance) IsZero() bool {
 	for _, v := range b {
@@ -105,14 +105,14 @@ func (b Balance) Add(amount Amount) Balance {
 	//log.Debugf(c, "Balance.Add(amount=%v)", amount)
 	if current, ok := b[amount.Currency]; ok {
 		newVal := current + amount.Value
-		//log.Debugf(c, "Balance.Add(): currency found: [%v], current=%v, newVal=%v", amount.Currency, current, newVal)
+		//log.Debugf(c, "Balance.Add(): currency found: [%v], current=%v, newVal=%v", amount.CurrencyCode, current, newVal)
 		if newVal == 0 {
 			delete(b, amount.Currency)
 		} else {
 			b[amount.Currency] = newVal
 		}
 	} else {
-		//log.Debugf(c, "Balance.Add(): currency NOT found: [%v], setting to: %v", amount.Currency, amount.Value)
+		//log.Debugf(c, "Balance.Add(): currency NOT found: [%v], setting to: %v", amount.CurrencyCode, amount.Value)
 		b[amount.Currency] = amount.Value
 	}
 	return b
@@ -159,7 +159,7 @@ func (balanced *Balanced) SetBalance(balance Balance) error {
 	return nil
 }
 
-func (balanced *Balanced) AddToBalance(currency Currency, value decimal.Decimal64p2) (Balance, error) {
+func (balanced *Balanced) AddToBalance(currency CurrencyCode, value decimal.Decimal64p2) (Balance, error) {
 	oldBalance := balanced.Balance()
 	newBalance := oldBalance.Add(Amount{Currency: currency, Value: value})
 	//log.Debugf(c, "AddToBalance(): oldBalance: %v, newBalance: %v", oldBalance, newBalance)

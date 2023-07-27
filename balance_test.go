@@ -10,7 +10,7 @@ import (
 
 func TestBalance_Add(t *testing.T) {
 	balance := make(Balance)
-	rub := Currency(CURRENCY_RUB)
+	rub := CurrencyCode(CurrencyRUB)
 	balance2 := balance.Add(NewAmount(rub, decimal.NewDecimal64p2FromFloat64(123.45)))
 	if balance.IsZero() {
 		t.Error("balance.IsZero()")
@@ -39,8 +39,8 @@ func TestBalance_Add(t *testing.T) {
 
 func TestBalance_ffjson(t *testing.T) {
 	balance1 := Balance{
-		CURRENCY_EUR: decimal.NewDecimal64p2(10, 2),
-		CURRENCY_RUB: decimal.NewDecimal64p2(100, 0),
+		CurrencyEUR: decimal.NewDecimal64p2(10, 2),
+		CurrencyRUB: decimal.NewDecimal64p2(100, 0),
 	}
 
 	serialized, err := ffjson.Marshal(balance1)

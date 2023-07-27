@@ -2,13 +2,12 @@ package money
 
 import (
 	"fmt"
-	"sort"
 	"strings"
 )
 
-type Currency string
+type CurrencyCode string
 
-var currencies = []string{ // Must be sorted in ascending order!
+var currencies = []CurrencyCode{ // Must be sorted in ascending order!
 	"AED",    // د.إ - United Arab Emirates dirham
 	"AFN",    // ؋ - Afghan afghani
 	"ALL",    // L - Albanian lek
@@ -175,40 +174,45 @@ var currencies = []string{ // Must be sorted in ascending order!
 	"ZMW",    // ZK - Zambian kwacha
 }
 
-func (c Currency) IsMoney() bool {
+func (c CurrencyCode) IsMoney() bool {
 	return IsKnownCurrency(c)
 }
 
-func IsKnownCurrency(c Currency) bool {
-	return sort.SearchStrings(currencies, string(c)) >= 0
+func IsKnownCurrency(c CurrencyCode) bool {
+	for _, currency := range currencies {
+		if currency == c {
+			return true
+		}
+	}
+	return false
 }
 
-var CURRENCY_USD = Currency("USD")
-var CURRENCY_EUR = Currency("EUR")
-var CURRENCY_GBP = Currency("GPB")
-var CURRENCY_JPY = Currency("JPY")
+var CurrencyUSD = CurrencyCode("USD")
+var CurrencyEUR = CurrencyCode("EUR")
+var CurrencyGBP = CurrencyCode("GPB")
+var CurrencyJPY = CurrencyCode("JPY")
 
-var CURRENCY_RUB = Currency("RUB")
-var CURRENCY_UAH = Currency("UAH")
-var CURRENCY_BYN = Currency("BYN")
-var CURRENCY_UZS = Currency("UZS")
-var CURRENCY_TJS = Currency("TJS")
-var CURRENCY_KZT = Currency("KZT")
+var CurrencyRUB = CurrencyCode("RUB")
+var CurrencyUAH = CurrencyCode("UAH")
+var CurrencyBYN = CurrencyCode("BYN")
+var CurrencyUZS = CurrencyCode("UZS")
+var CurrencyTJS = CurrencyCode("TJS")
+var CurrencyKZT = CurrencyCode("KZT")
 
-var CURRENCY_IRR = Currency("IRR")
+var CurrencyIRR = CurrencyCode("IRR")
 
 const (
-	EUR_SIGN = "€"
-	USD_SIGN = "$"
-	GPB_SIGN = "£"
-	JPY_SIGN = "¥"
-	RUR_SIGN = "₽"
-	IRR_SIGN = "﷼"
-	UAH_SIGN = "₴"
-	UZS_SIGN = "сўм"
-	BYN_SIGN = "Br"
-	TJS_SIGN = "смн."
-	KZT_SIGN = "₸"
+	CurrencySymbolEUR = "€"
+	CurrencySymbolUSD = "$"
+	CurrencySymbolGPB = "£"
+	CurrencySymbolJPY = "¥"
+	CurrencySymbolRUR = "₽"
+	CurrencySymbolIRR = "﷼"
+	CurrencySymbolUAH = "₴"
+	CurrencySymbolUZS = "сўм"
+	CurrencySymbolBYN = "Br"
+	CurrencySymbolTJS = "смн."
+	CurrencySymbolKZT = "₸"
 )
 
 func HasCurrencyPrefix(s string) bool {
@@ -220,38 +224,38 @@ func HasCurrencyPrefix(s string) bool {
 	return false
 }
 
-func CleanupCurrency(s string) Currency {
+func CleanupCurrency(s string) CurrencyCode {
 	for currency := range currencySigns {
 		if currency.SignAndCode() == s || string(currency) == s {
 			return currency
 		}
 	}
-	return Currency(s)
+	return CurrencyCode(s)
 }
 
-var currencySigns = map[Currency]string{
-	CURRENCY_USD: USD_SIGN,
-	CURRENCY_EUR: EUR_SIGN,
-	CURRENCY_GBP: GPB_SIGN,
-	CURRENCY_IRR: IRR_SIGN,
-	CURRENCY_JPY: JPY_SIGN,
+var currencySigns = map[CurrencyCode]string{
+	CurrencyUSD: CurrencySymbolUSD,
+	CurrencyEUR: CurrencySymbolEUR,
+	CurrencyGBP: CurrencySymbolGPB,
+	CurrencyIRR: CurrencySymbolIRR,
+	CurrencyJPY: CurrencySymbolJPY,
 
-	CURRENCY_RUB: RUR_SIGN,
-	CURRENCY_UAH: UAH_SIGN,
-	CURRENCY_BYN: BYN_SIGN,
-	CURRENCY_UZS: UZS_SIGN,
-	CURRENCY_TJS: TJS_SIGN,
-	CURRENCY_KZT: KZT_SIGN,
+	CurrencyRUB: CurrencySymbolRUR,
+	CurrencyUAH: CurrencySymbolUAH,
+	CurrencyBYN: CurrencySymbolBYN,
+	CurrencyUZS: CurrencySymbolUZS,
+	CurrencyTJS: CurrencySymbolTJS,
+	CurrencyKZT: CurrencySymbolKZT,
 }
 
-func (c Currency) Sign() string {
+func (c CurrencyCode) Sign() string {
 	if sign, ok := currencySigns[c]; ok {
 		return sign
 	}
 	return string(c)
 }
 
-func (c Currency) SignAndCode() string {
+func (c CurrencyCode) SignAndCode() string {
 	if sign, ok := currencySigns[c]; ok {
 		return fmt.Sprintf("%v %v", sign, c)
 	}

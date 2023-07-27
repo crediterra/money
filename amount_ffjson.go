@@ -33,7 +33,7 @@ func (a *Amount) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	var obj []byte
 	_ = obj
 	_ = err
-	buf.WriteString(`{"Currency":`)
+	buf.WriteString(`{"CurrencyCode":`)
 	fflib.WriteJsonString(buf, string(a.Currency))
 	buf.WriteString(`,"Value":`)
 
@@ -59,7 +59,7 @@ const (
 	ffj_t_Amount_Value
 )
 
-var ffj_key_Amount_Currency = []byte("Currency")
+var ffj_key_Amount_Currency = []byte("CurrencyCode")
 
 var ffj_key_Amount_Value = []byte("Value")
 
@@ -191,13 +191,13 @@ mainparse:
 
 handle_Currency:
 
-	/* handler: uj.Currency type=models.Currency kind=string quoted=false*/
+	/* handler: uj.CurrencyCode type=models.CurrencyCode kind=string quoted=false*/
 
 	{
 
 		{
 			if tok != fflib.FFTok_string && tok != fflib.FFTok_null {
-				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for Currency", tok))
+				return fs.WrapErr(fmt.Errorf("cannot unmarshal %s into Go value for CurrencyCode", tok))
 			}
 		}
 
@@ -207,7 +207,7 @@ handle_Currency:
 
 			outBuf := fs.Output.Bytes()
 
-			a.Currency = Currency(string(outBuf))
+			a.Currency = CurrencyCode(string(outBuf))
 
 		}
 	}
