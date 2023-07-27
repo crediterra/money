@@ -176,6 +176,10 @@ var currencies = []string{ // Must be sorted in ascending order!
 }
 
 func (c Currency) IsMoney() bool {
+	return IsKnownCurrency(c)
+}
+
+func IsKnownCurrency(c Currency) bool {
 	return sort.SearchStrings(currencies, string(c)) >= 0
 }
 

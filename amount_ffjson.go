@@ -12,20 +12,20 @@ import (
 	fflib "github.com/pquerna/ffjson/fflib/v1"
 )
 
-func (mj *Amount) MarshalJSON() ([]byte, error) {
+func (a *Amount) MarshalJSON() ([]byte, error) {
 	var buf fflib.Buffer
-	if mj == nil {
+	if a == nil {
 		buf.WriteString("null")
 		return buf.Bytes(), nil
 	}
-	err := mj.MarshalJSONBuf(&buf)
+	err := a.MarshalJSONBuf(&buf)
 	if err != nil {
 		return nil, err
 	}
 	return buf.Bytes(), nil
 }
-func (mj *Amount) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
-	if mj == nil {
+func (a *Amount) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
+	if a == nil {
 		buf.WriteString("null")
 		return nil
 	}
@@ -34,12 +34,12 @@ func (mj *Amount) MarshalJSONBuf(buf fflib.EncodingBuffer) error {
 	_ = obj
 	_ = err
 	buf.WriteString(`{"Currency":`)
-	fflib.WriteJsonString(buf, string(mj.Currency))
+	fflib.WriteJsonString(buf, string(a.Currency))
 	buf.WriteString(`,"Value":`)
 
 	{
 
-		obj, err = mj.Value.MarshalJSON()
+		obj, err = a.Value.MarshalJSON()
 		if err != nil {
 			return err
 		}
@@ -63,12 +63,12 @@ var ffj_key_Amount_Currency = []byte("Currency")
 
 var ffj_key_Amount_Value = []byte("Value")
 
-func (uj *Amount) UnmarshalJSON(input []byte) error {
+func (a *Amount) UnmarshalJSON(input []byte) error {
 	fs := fflib.NewFFLexer(input)
-	return uj.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
+	return a.UnmarshalJSONFFLexer(fs, fflib.FFParse_map_start)
 }
 
-func (uj *Amount) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
+func (a *Amount) UnmarshalJSONFFLexer(fs *fflib.FFLexer, state fflib.FFParseState) error {
 	var err error = nil
 	currentKey := ffj_t_Amountbase
 	_ = currentKey
@@ -207,7 +207,7 @@ handle_Currency:
 
 			outBuf := fs.Output.Bytes()
 
-			uj.Currency = Currency(string(outBuf))
+			a.Currency = Currency(string(outBuf))
 
 		}
 	}
@@ -231,7 +231,7 @@ handle_Value:
 			return fs.WrapErr(err)
 		}
 
-		err = uj.Value.UnmarshalJSON(tbuf)
+		err = a.Value.UnmarshalJSON(tbuf)
 		if err != nil {
 			return fs.WrapErr(err)
 		}
