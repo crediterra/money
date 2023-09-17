@@ -1,10 +1,10 @@
 package money
 
 import (
+	"encoding/json"
 	"strings"
 	"testing"
 
-	"github.com/pquerna/ffjson/ffjson"
 	"github.com/strongo/decimal"
 )
 
@@ -43,7 +43,7 @@ func TestBalance_ffjson(t *testing.T) {
 		CurrencyRUB: decimal.NewDecimal64p2(100, 0),
 	}
 
-	serialized, err := ffjson.Marshal(balance1)
+	serialized, err := json.Marshal(balance1)
 	if err != nil {
 		t.Errorf("Failed to marshal: %v", err)
 	}

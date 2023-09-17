@@ -2,11 +2,11 @@ package money
 
 import (
 	"bytes"
+	"encoding/json"
 	"sort"
 	"time"
 
 	"errors"
-	"github.com/pquerna/ffjson/ffjson"
 	"github.com/strongo/decimal"
 )
 
@@ -133,7 +133,7 @@ func (balanced *Balanced) Balance() (balance Balance) {
 		return
 	}
 	balance = make(Balance, balanced.BalanceCount)
-	if err := ffjson.Unmarshal([]byte(balanced.BalanceJson), &balance); err != nil {
+	if err := json.Unmarshal([]byte(balanced.BalanceJson), &balance); err != nil {
 		panic(err)
 	}
 	return
@@ -150,7 +150,7 @@ func (balanced *Balanced) SetBalance(balance Balance) error {
 			return errors.New("balance currency has 0 value: " + string(currency))
 		}
 	}
-	if v, err := ffjson.Marshal(balance); err != nil {
+	if v, err := json.Marshal(balance); err != nil {
 		return err
 	} else {
 		balanced.BalanceJson = string(v)
