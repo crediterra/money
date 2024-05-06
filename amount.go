@@ -8,8 +8,8 @@ import (
 
 // Amount holds amount of money with currency
 type Amount struct {
-	Currency CurrencyCode
-	Value    decimal.Decimal64p2
+	Currency CurrencyCode        `json:"currency" firestore:"currency"`
+	Value    decimal.Decimal64p2 `json:"value" firestore:"value"`
 }
 
 // NewAmount creates new amount
