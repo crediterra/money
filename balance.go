@@ -2,12 +2,8 @@ package money
 
 import (
 	"bytes"
-	"encoding/json"
-	"sort"
-	"time"
-
-	"errors"
 	"github.com/strongo/decimal"
+	"sort"
 )
 
 type TestStruct struct {
@@ -116,52 +112,4 @@ func (b Balance) Add(amount Amount) Balance {
 		b[amount.Currency] = amount.Value
 	}
 	return b
-}
-
-// ffjson: skip
-type Balanced struct {
-	BalanceJson      string    `datastore:",noindex,omitempty" json:",omitempty"`
-	LastTransferID   string    `datastore:",noindex,omitempty" json:",omitempty"`
-	LastTransferAt   time.Time `datastore:",noindex,omitempty"`           // `json:",omitempty"` - http://stackoverflow.com/questions/32643815/golang-json-omitempty-with-time-time-field
-	CountOfTransfers int       `datastore:",omitempty" json:",omitempty"` // Do not remove, need for hiding balance/history menu in Telegram
-	BalanceCount     int       `datastore:",noindex,omitempty" json:"-"`
-}
-
-func (balanced *Balanced) Balance() (balance Balance) {
-	if balanced.BalanceJson == "" || balanced.BalanceJson == "null" || balanced.BalanceJson == "nil" || balanced.BalanceJson == "{}" {
-		balance = make(Balance, 1)
-		return
-	}
-	balance = make(Balance, balanced.BalanceCount)
-	if err := json.Unmarshal([]byte(balanced.BalanceJson), &balance); err != nil {
-		panic(err)
-	}
-	return
-}
-
-func (balanced *Balanced) SetBalance(balance Balance) error {
-	if len(balance) == 0 {
-		balanced.BalanceJson = ""
-		balanced.BalanceCount = 0
-		return nil
-	}
-	for currency, val := range balance {
-		if val == 0 {
-			return errors.New("balance currency has 0 value: " + string(currency))
-		}
-	}
-	if v, err := json.Marshal(balance); err != nil {
-		return err
-	} else {
-		balanced.BalanceJson = string(v)
-		balanced.BalanceCount = len(balance)
-	}
-	return nil
-}
-
-func (balanced *Balanced) AddToBalance(currency CurrencyCode, value decimal.Decimal64p2) (Balance, error) {
-	oldBalance := balanced.Balance()
-	newBalance := oldBalance.Add(Amount{Currency: currency, Value: value})
-	//log.Debugf(c, "AddToBalance(): oldBalance: %v, newBalance: %v", oldBalance, newBalance)
-	return newBalance, balanced.SetBalance(newBalance)
 }
