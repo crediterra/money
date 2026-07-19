@@ -8,7 +8,7 @@ import (
 // Balanced is a struct to store balance and summary of transfers
 // ffjson: skip
 type Balanced struct {
-	Balance        Balance   `firestore:"balance,noindex,omitempty,noindex" json:"balance,omitempty"`
+	Balance        Balance   `firestore:"balance,omitempty" json:"balance,omitempty"`
 	LastTransferID string    `datastore:"lastTransferID,omitempty,noindex" json:"lastTransferID,omitempty"`
 	LastTransferAt time.Time `datastore:"lastTransferAt,omitempty,noindex" json:"lastTransferAt,omitempty"`
 
