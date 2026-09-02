@@ -104,7 +104,8 @@ var currencies = []CurrencyCode{ // Must be sorted in ascending order!
 	"MMK",    // Ks - Burmese kyat
 	"MNT",    // ₮ - Mongolian tögrög
 	"MOP",    // P - Macanese pataca
-	"MRO",    // UM - Mauritanian ouguiya
+	"MRO",    // UM - Mauritanian ouguiya (retired, replaced by MRU in 2018)
+	"MRU",    // UM - Mauritanian ouguiya
 	"MUR",    // ₨ - Mauritian rupee
 	"MVR",    // .ރ - Maldivian rufiyaa
 	"MWK",    // MK - Malawian kwacha
@@ -138,11 +139,14 @@ var currencies = []CurrencyCode{ // Must be sorted in ascending order!
 	"SEK",    // kr - Swedish krona
 	"SGD",    // $ - Singapore dollar
 	"SHP",    // £ - Saint Helena pound
-	"SLL",    // Le - Sierra Leonean leone
+	"SLE",    // Le - Sierra Leonean leone
+	"SLL",    // Le - Sierra Leonean leone (pre-2022 redenomination; still ISO-listed)
 	"SOS",    // Sh - Somali shilling
 	"SRD",    // $ - Surinamese dollar
 	"SSP",    // £ - South Sudanese pound
-	"STD",    // Db - São Tomé and Príncipe dobra
+	"STD",    // Db - São Tomé and Príncipe dobra (retired, replaced by STN in 2018)
+	"STN",    // Db - São Tomé and Príncipe dobra
+	"SVC",    // $ - Salvadoran colón
 	"SYP",    // £ or ل.س - Syrian pound
 	"SZL",    // L - Swazi lilangeni
 	"THB",    // ฿ - Thai baht
@@ -160,18 +164,36 @@ var currencies = []CurrencyCode{ // Must be sorted in ascending order!
 	"USD",    // $ - United States dollar
 	"UYU",    // $ - Uruguayan peso
 	"UZS",    //  - Uzbekistani soʻm
-	"VEF",    // Bs - Venezuelan bolívar
+	"VEF",    // Bs - Venezuelan bolívar (retired, replaced by VES in 2018)
+	"VES",    // Bs - Venezuelan bolívar soberano
 	"VND",    // ₫ - Vietnamese đồng
 	"VUV",    // Vt - Vanuatu vatu
 	"WST",    // T - Samoan tālā
 	"XAF",    // Fr - Central African CFA franc
 	"XCD",    // $ - East Caribbean dollar
+	"XCG",    // ƒ - Caribbean guilder (Curaçao and Sint Maarten)
+	"XDR",    // SDR - Special drawing rights (IMF)
 	"XOF",    // Fr - West African CFA franc
 	"XPF",    // Fr - CFP franc
+	"XSU",    // Sucre - SUCRE
 	"YER",    // ﷼ - Yemeni rial
 	"ZAR",    // R - South African rand
 	"ZAR",    // Rs - South African rand
 	"ZMW",    // ZK - Zambian kwacha
+	"ZWG",    // ZiG - Zimbabwe Gold
+	"ZWL",    // $ - Zimbabwean dollar
+}
+
+// retiredCurrencies holds ISO 4217 codes that this package still parses for
+// historical data (e.g. legacy stored amounts) but that are no longer part
+// of the active currency list — they are not returned by ActiveCurrencies()
+// and are excluded from IsActive(). Each has been superseded by a newer code
+// also present in currencies above.
+var retiredCurrencies = map[CurrencyCode]bool{
+	"BYR": true, // Old Belarusian ruble, replaced by BYN in 2016
+	"MRO": true, // Mauritanian ouguiya, replaced by MRU in 2018
+	"STD": true, // São Tomé and Príncipe dobra, replaced by STN in 2018
+	"VEF": true, // Venezuelan bolívar, replaced by VES in 2018
 }
 
 func (c CurrencyCode) IsMoney() bool {
@@ -185,6 +207,59 @@ func IsKnownCurrency(c CurrencyCode) bool {
 		}
 	}
 	return false
+}
+
+// isWellFormedCurrencyCode reports whether c has the canonical 3-letter
+// uppercase ISO 4217 alpha shape. A few legacy entries in currencies carry
+// scrape artifacts (e.g. footnote markers such as "GGP[G]") that are known
+// currency codes for IsKnownCurrency's historical-parsing purpose but are
+// never valid, current ISO 4217 codes, so they are excluded here.
+func isWellFormedCurrencyCode(c CurrencyCode) bool {
+	if len(c) != 3 {
+		return false
+	}
+	for _, r := range c {
+		if r < 'A' || r > 'Z' {
+			return false
+		}
+	}
+	return true
+}
+
+// IsRetired reports whether c is a currency code that this package still
+// recognizes (for parsing historical data) but that is no longer part of
+// the active ISO 4217 currency list, e.g. because it was replaced by a
+// redenominated successor code.
+func (c CurrencyCode) IsRetired() bool {
+	return retiredCurrencies[c]
+}
+
+// IsActive reports whether c is a currently active ISO 4217 currency code.
+// It is like IsKnownCurrency, but excludes retired codes (see IsRetired)
+// and malformed legacy entries. The set of codes for which IsActive returns
+// true is exactly the set returned by ActiveCurrencies.
+func (c CurrencyCode) IsActive() bool {
+	return isWellFormedCurrencyCode(c) && IsKnownCurrency(c) && !retiredCurrencies[c]
+}
+
+// ActiveCurrencies returns the deduplicated list of currently active ISO
+// 4217 currency codes known to this package, i.e. excluding retired codes
+// (see IsRetired) and malformed legacy entries. This is the list to compare
+// against an external canonical source such as TypeScript's
+// Intl.supportedValuesOf('currency').
+func ActiveCurrencies() []CurrencyCode {
+	seen := make(map[CurrencyCode]struct{}, len(currencies))
+	active := make([]CurrencyCode, 0, len(currencies))
+	for _, c := range currencies {
+		if _, dup := seen[c]; dup {
+			continue
+		}
+		seen[c] = struct{}{}
+		if c.IsActive() {
+			active = append(active, c)
+		}
+	}
+	return active
 }
 
 var CurrencyUSD = CurrencyCode("USD")
