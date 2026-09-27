@@ -15,5 +15,8 @@ jobs:
     permissions:
       contents: write
     uses: strongo/cicd/.github/workflows/workflow.yml@main
+    with:
+      code_coverage: true
+      min_test_coverage_percent: 100
     secrets:
       gh_token: ${{ secrets.GITHUB_TOKEN }}

@@ -14,3 +14,11 @@ func TestBalancedBalanceFirestoreTag(t *testing.T) {
 		t.Errorf("Balanced.Balance firestore tag = %q, want %q", got, want)
 	}
 }
+
+func TestBalanced_AddToBalance(t *testing.T) {
+	b := &Balanced{}
+	b.AddToBalance(CurrencyUSD, 100)
+	if b.Balance[CurrencyUSD] != 100 {
+		t.Errorf("expected 100, got %v", b.Balance[CurrencyUSD])
+	}
+}

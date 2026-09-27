@@ -110,3 +110,50 @@ func TestIsActive_UnknownAndMalformedCodesAreNotActive(t *testing.T) {
 		}
 	}
 }
+
+func TestCurrencyCode_IsMoney(t *testing.T) {
+	if !CurrencyUSD.IsMoney() {
+		t.Error("expected USD to be money")
+	}
+	if CurrencyCode("INVALID").IsMoney() {
+		t.Error("expected INVALID not to be money")
+	}
+}
+
+func TestHasCurrencyPrefix(t *testing.T) {
+	if !HasCurrencyPrefix("$100") {
+		t.Error("expected $100 to have currency prefix")
+	}
+	if HasCurrencyPrefix("100 USD") {
+		t.Error("expected 100 USD not to have currency prefix")
+	}
+}
+
+func TestCleanupCurrency(t *testing.T) {
+	if got := CleanupCurrency(CurrencyUSD.SignAndCode()); got != CurrencyUSD {
+		t.Errorf("expected USD from SignAndCode, got %v", got)
+	}
+	if got := CleanupCurrency("USD"); got != CurrencyUSD {
+		t.Errorf("expected USD from string, got %v", got)
+	}
+	if got := CleanupCurrency("XYZ"); got != CurrencyCode("XYZ") {
+		t.Errorf("expected fallback XYZ, got %v", got)
+	}
+}
+
+func TestCurrencyCode_Sign_and_SignAndCode(t *testing.T) {
+	if got := CurrencyUSD.Sign(); got != "$" {
+		t.Errorf("expected $, got %v", got)
+	}
+	if got := CurrencyCode("XYZ").Sign(); got != "XYZ" {
+		t.Errorf("expected XYZ, got %v", got)
+	}
+
+	if got := CurrencyUSD.SignAndCode(); got != "$ USD" {
+		t.Errorf("expected '$ USD', got %v", got)
+	}
+	if got := CurrencyCode("XYZ").SignAndCode(); got != "XYZ" {
+		t.Errorf("expected XYZ, got %v", got)
+	}
+}
+

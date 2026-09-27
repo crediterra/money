@@ -35,12 +35,7 @@ func (b Balance) Equal(b2 Balance) bool {
 		return false
 	}
 	for c, v := range b {
-		if v != b2[c] {
-			return false
-		}
-	}
-	for c, v := range b2 {
-		if v != b[c] {
+		if v2, ok := b2[c]; !ok || v != v2 {
 			return false
 		}
 	}
@@ -98,7 +93,9 @@ func (b Balance) CommaSeparatedUnsignedWithSymbols(translator interface{ Transla
 }
 
 func (b Balance) Add(amount Amount) Balance {
-	//log.Debugf(c, "Balance.Add(amount=%v)", amount)
+	if b == nil {
+		b = make(Balance)
+	}
 	if current, ok := b[amount.Currency]; ok {
 		newVal := current + amount.Value
 		//log.Debugf(c, "Balance.Add(): currency found: [%v], current=%v, newVal=%v", amount.CurrencyCode, current, newVal)
